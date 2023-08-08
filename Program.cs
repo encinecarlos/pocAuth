@@ -1,33 +1,11 @@
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Poc.Authentication.Services;
+using Poc.Authentication.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddAuthentication(o => {
-    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(o => {
-    o.RequireHttpsMetadata = false;
-    o.SaveToken = true;
-    o.TokenValidationParameters = new TokenValidationParameters {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration?.GetSection("ApiKey")?.Value)),
-        ValidateAudience = false,
-        ValidateIssuer = false
-    };
-});
-
-builder.Services.AddAuthorization(o => {
-    o.AddPolicy("Common", p => p.RequireRole("common"));
-    o.AddPolicy("Admin", p => p.RequireRole("admin"));
-});
-
-builder.Services.AddTransient<TokenService>();
+builder.Services.AddIoC(builder.Configuration);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
